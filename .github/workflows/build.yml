@@ -64,7 +64,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .theos
-          key: trollpadex-rootless-build-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**') }}
+          key: trollpadex-rootless-build-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('Makefile', 'TrollPadPrefs/Makefile', '**/*.x', '**/*.m', '**/*.h', '**/*.plist', 'control') }}
           restore-keys: |
             trollpadex-rootless-build-${{ runner.os }}-${{ runner.arch }}-
 
