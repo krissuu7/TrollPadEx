@@ -83,30 +83,36 @@ jobs:
           retention-days: 14
 
       - name: Publish GitHub Release
-        if: github.event_name == 'push' && github.ref == 'refs/heads/TrollPadEx' && startsWith(github.event.head_commit.message, 'release: TrollPadEx 2.0.8')
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: v2.0.8
-          target_commitish: ${{ github.sha }}
-          name: TrollPadEx 2.0.8 — Rootless
-          body: |
-            ## TrollPadEx 2.0.8 — Rootless
+        if: github.event_name == 'push' && github.ref == 'refs/heads/TrollPadEx'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          set -euo pipefail
+          if [[ "$RELEASE_COMMIT_MESSAGE" != "release: TrollPadEx 2.0.8 rootless build" ]]; then
+            echo "Not the designated release commit; skipping release publication."
+            exit 0
+          fi
 
-            Rootless build of TrollPadEx, compiled with Theos on macOS 15 Intel (x86_64).
+          cat > release-notes.md <<'EOF'
+          ## TrollPadEx 2.0.8 — Rootless
 
-            ### Package details
-            - **Package:** `com.banana.trollpadex`
-            - **Version:** `2.0.8`
-            - **Architecture:** `iphoneos-arm64`
-            - **Minimum firmware dependency:** iOS 14.0
-            - **Install type:** Rootless
+          Rootless build of TrollPadEx, compiled with Theos on macOS 15 Intel (x86_64).
 
-            ### Installation
-            Download the `.deb` asset below and install it using your preferred rootless package manager.
+          ### Package details
+          - **Package:** `com.banana.trollpadex`
+          - **Version:** `2.0.8`
+          - **Architecture:** `iphoneos-arm64`
+          - **Minimum firmware dependency:** iOS 14.0
+          - **Install type:** Rootless
 
-            This release contains only the Rootless package.
-          files: packages/*.deb
-          fail_on_unmatched_files: true
-          draft: false
-          prerelease: false
-          make_latest: true
+          ### Installation
+          Download the `.deb` asset below and install it using your preferred rootless package manager.
+
+          This release contains only the Rootless package.
+          EOF
+
+          gh release create v2.0.8 packages/*.deb \
+            --title "TrollPadEx 2.0.8 — Rootless" \
+            --notes-file release-notes.md \
+            --target "$GITHUB_SHA"
