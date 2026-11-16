@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: rootless-${{ github.ref }}
@@ -81,3 +81,32 @@ jobs:
           path: packages/*.deb
           if-no-files-found: error
           retention-days: 14
+
+      - name: Publish GitHub Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/TrollPadEx' && startsWith(github.event.head_commit.message, 'release: TrollPadEx 2.0.8')
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: v2.0.8
+          target_commitish: ${{ github.sha }}
+          name: TrollPadEx 2.0.8 — Rootless
+          body: |
+            ## TrollPadEx 2.0.8 — Rootless
+
+            Rootless build of TrollPadEx, compiled with Theos on macOS 15 Intel (x86_64).
+
+            ### Package details
+            - **Package:** `com.banana.trollpadex`
+            - **Version:** `2.0.8`
+            - **Architecture:** `iphoneos-arm64`
+            - **Minimum firmware dependency:** iOS 14.0
+            - **Install type:** Rootless
+
+            ### Installation
+            Download the `.deb` asset below and install it using your preferred rootless package manager.
+
+            This release contains only the Rootless package.
+          files: packages/*.deb
+          fail_on_unmatched_files: true
+          draft: false
+          prerelease: false
+          make_latest: true
