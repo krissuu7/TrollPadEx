@@ -24,11 +24,11 @@ jobs:
 
     steps:
       - name: Checkout TrollPadEx
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Restore Theos toolchain cache
         id: theos-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             theos
@@ -39,7 +39,7 @@ jobs:
 
       - name: Checkout Theos
         if: steps.theos-cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: theos/theos
           ref: master
@@ -48,7 +48,7 @@ jobs:
 
       - name: Checkout iOS SDK
         if: steps.theos-cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: theos/sdks
           ref: master
@@ -59,9 +59,10 @@ jobs:
         uses: dhinakg/procursus-action@main
         with:
           packages: coreutils make xz ldid
+          cache: false
 
       - name: Restore incremental Theos build cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .theos
           key: trollpadex-rootless-build-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('Makefile', 'TrollPadPrefs/Makefile', '**/*.x', '**/*.m', '**/*.h', '**/*.plist', 'control') }}
@@ -74,7 +75,7 @@ jobs:
           gmake package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
 
       - name: Upload rootless Debian package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: TrollPadEx-rootless
           path: packages/*.deb
